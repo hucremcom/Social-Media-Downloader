@@ -144,7 +144,7 @@ if (Test-Path "lang" -PathType Container) {
 
 # Uygulama derleme
 Write-Host "Uygulama derleniyor..." -ForegroundColor Cyan
-$derleKomutu = "pyinstaller --noconfirm --onefile --windowed $iconParam $langDataParam youtube_downloader.py --name 'Sah_YouTube_Downloader'"
+$derleKomutu = "pyinstaller --clean --noconfirm --onefile --windowed $iconParam $langDataParam youtube_downloader.py --name 'YouTube_Downloader'"
 Write-Host "Çalıştırılan komut: $derleKomutu" -ForegroundColor DarkGray
 Invoke-Expression $derleKomutu
 
@@ -152,7 +152,7 @@ if ($LASTEXITCODE -ne 0) {
     Write-Host "Derleme sirasinda hata olustu!" -ForegroundColor Red
 } else {
     Write-Host "Derleme basariyla tamamlandi!" -ForegroundColor Green
-    Write-Host "Calistirilabilir dosya: dist\Sah_YouTube_Downloader.exe" -ForegroundColor Cyan
+    Write-Host "Calistirilabilir dosya: dist\YouTube_Downloader.exe" -ForegroundColor Cyan
     
     # Derleme sonrası, exe'nin yanına ikon dosyasını da kopyala
     if (Test-Path "youtube_icon.ico") {

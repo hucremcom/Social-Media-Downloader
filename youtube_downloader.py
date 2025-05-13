@@ -296,8 +296,8 @@ class YoutubeDownloader:
             
             # Frame, LabelFrame gibi container widget'lar
             if widget_class in ['Frame', 'TFrame', 'Labelframe', 'TLabelframe']:
-        for child in widget.winfo_children():
-                self.update_widget_backgrounds(child, bg_color)
+                for child in widget.winfo_children():
+                    self.update_widget_backgrounds(child, bg_color)
             
             # Root windowun alt widget'ları için
             elif widget == self.root:
@@ -462,7 +462,7 @@ class YoutubeDownloader:
             # Dosyanın indirilip indirilmediğini kontrol et
             if os.path.exists(self.yt_dlp_path):
                 print(f"yt-dlp başarıyla indirildi: {self.yt_dlp_path}")
-            return True
+                return True
             else:
                 print(f"Hata: İndirme başarılı görünüyor ancak dosya bulunamadı: {self.yt_dlp_path}")
                 return False
@@ -615,12 +615,12 @@ class YoutubeDownloader:
             download_dir = self.dir_var.get()
 
             try:
-            if self.download_both_formats.get():
+                if self.download_both_formats.get():
                     # Hem MP3 hem MP4 indir
                     self._download_single_format(url, download_dir, "mp4", url)
                     if self.is_downloading:  # MP4 indirme başarılı olduysa MP3'ü indir
                         self._download_single_format(url, download_dir, "mp3", url)
-            else:
+                else:
                     # Seçili formatta indir
                     format_choice = self.format_var.get()
                     self._download_single_format(url, download_dir, format_choice, url)
@@ -647,7 +647,7 @@ class YoutubeDownloader:
         
         try:
             # Dil menüsünü güncelle
-            menu_bar = self.root.winfo_children()[0]
+            menubar = self.root.winfo_children()[0]
             
             # Dil menüsünün index'ini bul
             for i in range(menu_bar.index("end") + 1):
