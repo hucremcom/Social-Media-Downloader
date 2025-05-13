@@ -25,6 +25,10 @@ Contact: dijitalaksiyonmerkezi@gmail.com
 GitHub: https://github.com/aksiyoner
 
 
+This application is built on the open-source yt-dlp tool (https://github.com/yt-dlp/yt-dlp), automatically downloading and updating the yt-dlp binary for reliable video and audio extraction.
+Special thanks to the yt-dlp developers and community for their excellent work.
+
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
