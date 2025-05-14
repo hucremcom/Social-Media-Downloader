@@ -2,6 +2,8 @@
 
 YouTube Downloader is a powerful application for downloading YouTube videos in MP4 and MP3 formats. It features a modern GUI, multi-language support, and single-executable packaging for easy distribution.
 
+**Supported Platforms:** YouTube, TikTok, Instagram, Twitter, Facebook, Reddit, Twitch, Vimeo, Dailymotion.
+
 ![Screenshot](ss.png) 
 
 ## Getting Started
