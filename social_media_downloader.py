@@ -18,8 +18,8 @@ class YoutubeDownloader:
         self.root.title("Social Media Downloader")
         
         # İkonu ayarla - pencere başlığında görünecek ikon
-        if os.path.exists("youtube_icon.ico"):
-            self.root.iconbitmap("youtube_icon.ico")
+        if os.path.exists("social_icon.ico"):
+            self.root.iconbitmap("social_icon.ico")
         
         # Kullanıcı klasörü bulma
         user_dir = os.path.expanduser("~")
@@ -966,28 +966,24 @@ class YoutubeDownloader:
                 dist_dir = resources_dir
 
             # İkon dosyasını paket kaynağından kullanıcı dizinine kopyala
-            icon_src = os.path.join(resources_dir, 'youtube_icon.ico')
-            icon_dst = os.path.join(dist_dir, 'youtube_icon.ico')
-            if os.path.exists(icon_src) and not os.path.exists(icon_dst):
+            icon_src = os.path.join(resources_dir, 'social_icon.ico')
+            icon_dst = os.path.join(dist_dir, 'social_icon.ico')
+            if os.path.exists(icon_src) and (not os.path.exists(icon_dst) or os.path.getmtime(icon_src) > os.path.getmtime(icon_dst)):
                 shutil.copy(icon_src, icon_dst)
 
             resources_lang_dir = os.path.join(resources_dir, 'lang')
             dist_lang_dir = os.path.join(dist_dir, 'lang')
 
             # Varsayılan dil dosyalarını paket kaynağından kullanıcı klasörüne kopyala
+            # (her çalıştırmada üzerine yazar, böylece eski sürüm dil dosyaları sorun çıkarmaz)
             if os.path.exists(resources_lang_dir):
-                if not os.path.exists(dist_lang_dir):
-                    shutil.copytree(resources_lang_dir, dist_lang_dir)
-                else:
-                    # Eksik dosyaları kopyala
-                    for file in os.listdir(resources_lang_dir):
-                        if file.endswith('.txt'):
-                            src = os.path.join(resources_lang_dir, file)
-                            dst = os.path.join(dist_lang_dir, file)
-                            if not os.path.exists(dst):
-                                shutil.copy(src, dst)
-            else:
                 os.makedirs(dist_lang_dir, exist_ok=True)
+                for file in os.listdir(resources_lang_dir):
+                    if file.endswith('.txt'):
+                        src = os.path.join(resources_lang_dir, file)
+                        dst = os.path.join(dist_lang_dir, file)
+                        if not os.path.exists(dst) or os.path.getmtime(src) > os.path.getmtime(dst):
+                            shutil.copy(src, dst)
 
             # Kullanıcı dizinindeki dil dosyalarını tara ve yükle
             for lang_file in os.listdir(dist_lang_dir):

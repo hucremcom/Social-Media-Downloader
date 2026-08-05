@@ -1,4 +1,4 @@
-# YouTube Downloader Derleme Script'i
+# Social Media Downloader Derleme Script'i
 # Konsol penceresini genişlet
 try {
     $host.UI.RawUI.WindowSize = New-Object System.Management.Automation.Host.Size(120, 40)
@@ -7,7 +7,7 @@ try {
     Write-Host "Konsol boyutu ayarlanamadı, atlanıyor..." -ForegroundColor Yellow
 }
 
-Write-Host "YouTube Downloader derleniyor..." -ForegroundColor Cyan
+Write-Host "Social Media Downloader derleniyor..." -ForegroundColor Cyan
 Write-Host ""
 
 # Python kontrolü
@@ -85,16 +85,35 @@ if (Test-Path $ytdlpPath) {
 # Simge oluştur
 Write-Host "Uygulama simgesi olusturuluyor..." -ForegroundColor Yellow
 $iconPyContent = @"
-import base64, os
 from PIL import Image, ImageDraw
-# Turkce karakter uyumlu islem
-icon = Image.new('RGBA', (256, 256), (0, 0, 0, 0))
-draw = ImageDraw.Draw(icon)
-# YouTube kirmizi arkaplan
-draw.ellipse((10, 10, 246, 246), fill='#FF0000')
-# Play ikonu
-draw.polygon([(90, 70), (190, 128), (90, 186)], fill='white')
-icon.save('youtube_icon.ico')
+
+def lerp(a, b, t):
+    return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(3))
+
+w = h = 256
+icon = Image.new('RGBA', (w, h), (0, 0, 0, 0))
+
+# Mavi -> mor dikey gradyan arka plan
+grad = Image.new('RGBA', (w, h))
+g = ImageDraw.Draw(grad)
+top = (37, 99, 235)
+bot = (124, 58, 237)
+for y in range(h):
+    g.line([(0, y), (w, y)], fill=lerp(top, bot, y / h) + (255,))
+
+mask = Image.new('L', (w, h), 0)
+m = ImageDraw.Draw(mask)
+m.rounded_rectangle([8, 8, w - 8, h - 8], radius=60, fill=255)
+icon.paste(grad, (0, 0), mask)
+
+# Beyaz indirme oku (genel indirme ikonu)
+d = ImageDraw.Draw(icon)
+cx = 128
+d.rectangle([cx - 24, 44, cx + 24, 148], fill='white')
+d.polygon([(70, 136), (186, 136), (128, 214)], fill='white')
+d.rounded_rectangle([42, 172, 214, 208], radius=18, fill='white')
+
+icon.save('social_icon.ico', sizes=[(16, 16), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)])
 "@
 
 Set-Content -Path "create_icon.py" -Value $iconPyContent
@@ -110,16 +129,16 @@ try {
 python create_icon.py
 
 $iconParam = ""
-if (Test-Path "youtube_icon.ico") {
+if (Test-Path "social_icon.ico") {
     Write-Host "Simge basariyla olusturuldu." -ForegroundColor Green
-    $iconParam = "--icon=youtube_icon.ico"
+    $iconParam = "--icon=social_icon.ico"
 } else {
     Write-Host "Simge olusturulamadi, simgesiz devam ediliyor..." -ForegroundColor Yellow
 }
 
 # Ana Python kodunu güncelle - başlığı değiştir
-Write-Host "Youtube indirici başlığı güncelleniyor..." -ForegroundColor Yellow
-$pythonDosyasi = "youtube_downloader.py"
+Write-Host "Uygulama başlığı güncelleniyor..." -ForegroundColor Yellow
+$pythonDosyasi = "social_media_downloader.py"
 $icerik = Get-Content -Path $pythonDosyasi -Encoding UTF8
 $icerik = $icerik -replace 'self\.root\.title\("YouTube[^"]*"\)', 'self.root.title("Social Media Downloader")'
 Set-Content -Path $pythonDosyasi -Value $icerik -Encoding UTF8
@@ -132,7 +151,7 @@ if (-not (Test-Path "lang")) {
 }
 
 # Dil dosyalarını dahil etmek için parametreler hazırla
-$langDataParam = "--add-data 'appdata\bin\yt-dlp.exe;appdata\bin' --add-data 'youtube_icon.ico;.'"
+$langDataParam = "--add-data 'appdata\bin\yt-dlp.exe;appdata\bin' --add-data 'social_icon.ico;.'"
 
 # Eğer lang klasörü varsa ve içinde dosyalar varsa dahil et
 if (Test-Path "lang" -PathType Container) {
@@ -144,7 +163,7 @@ if (Test-Path "lang" -PathType Container) {
 
 # Uygulama derleme
 Write-Host "Uygulama derleniyor..." -ForegroundColor Cyan
-$derleKomutu = "python -m PyInstaller --clean --noconfirm --onefile --windowed $iconParam $langDataParam youtube_downloader.py --name 'Social_Media_Downloader'"
+$derleKomutu = "python -m PyInstaller --clean --noconfirm --onefile --windowed $iconParam $langDataParam social_media_downloader.py --name 'Social_Media_Downloader'"
 Write-Host "Çalıştırılan komut: $derleKomutu" -ForegroundColor DarkGray
 Invoke-Expression $derleKomutu
 
@@ -155,13 +174,14 @@ if ($LASTEXITCODE -ne 0) {
     Write-Host "Calistirilabilir dosya: dist\Social_Media_Downloader.exe" -ForegroundColor Cyan
     
     # Derleme sonrası, exe'nin yanına ikon dosyasını da kopyala
-    if (Test-Path "youtube_icon.ico") {
-        Copy-Item -Path "youtube_icon.ico" -Destination "dist\youtube_icon.ico" -Force
+    if (Test-Path "social_icon.ico") {
+        Copy-Item -Path "social_icon.ico" -Destination "dist\social_icon.ico" -Force
         Write-Host "İkon dosyası exe ile aynı dizine kopyalandı." -ForegroundColor Green
     }
 
-    # Dil klasörünü dist klasörüne kopyala
+    # Dil klasörünü dist klasörüne kopyala (mevcut eski dosyaları da temizle)
     if (Test-Path "lang" -PathType Container) {
+        if (Test-Path "dist\lang") { Remove-Item "dist\lang" -Recurse -Force }
         Copy-Item -Path "lang" -Destination "dist\lang" -Recurse -Force
         Write-Host "Lang klasörü exe ile aynı dizine kopyalandı." -ForegroundColor Green
     }
@@ -170,7 +190,8 @@ if ($LASTEXITCODE -ne 0) {
 # Temizlik
 Write-Host "Gecici dosyalar temizleniyor..." -ForegroundColor Yellow
 if (Test-Path "create_icon.py") { Remove-Item "create_icon.py" -Force }
-if (Test-Path "youtube_icon.png") { Remove-Item "youtube_icon.png" -Force }
+if (Test-Path "social_icon.png") { Remove-Item "social_icon.png" -Force }
+if (Test-Path "dist\youtube_icon.ico") { Remove-Item "dist\youtube_icon.ico" -Force }
 if (Test-Path "__pycache__") { Remove-Item "__pycache__" -Recurse -Force }
 if (Test-Path "build") { Remove-Item "build" -Recurse -Force }
 Get-ChildItem -Filter "*.spec" | ForEach-Object { Remove-Item $_.FullName -Force }
