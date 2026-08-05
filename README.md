@@ -43,8 +43,8 @@ This project would not be possible without **yt-dlp** — the incredible open-so
 
 yt-dlp is released under the **Unlicense** (public domain). This project is licensed under the same license out of respect and gratitude for their contribution to the open-source community.
 
-Developed by **Digital Aksiyon Merkezi** — Made in Turkey 🇹🇷
-Contact: dijitalaksiyonmerkezi@gmail.com · GitHub: https://github.com/hucremcom
+Developed by **Teknosenator** — Made in Turkey 🇹🇷
+Contact: teknosenator@gmail.com · Website: https://hucrem.com · GitHub: https://github.com/hucremcom
 
 ---
 
@@ -87,8 +87,8 @@ Bu proje, her şeyin arkasındaki inanılmaz açık kaynak indirici **yt-dlp** o
 
 yt-dlp **Unlicense** (kamu alanı) ile lisanslanmıştır. Bu proje de açık kaynak topluluğuna katkılarına saygı ve minnettarlık göstergesi olarak aynı lisansla lisanslanmıştır.
 
-**Digital Aksiyon Merkezi** tarafından geliştirilmiştir — Türkiye'de yapıldı 🇹🇷
-İletişim: dijitalaksiyonmerkezi@gmail.com · GitHub: https://github.com/hucremcom
+**Teknosenator** tarafından geliştirilmiştir — Türkiye'de yapıldı 🇹🇷
+İletişim: teknosenator@gmail.com · Web: https://hucrem.com · GitHub: https://github.com/hucremcom
 
 ---
 
