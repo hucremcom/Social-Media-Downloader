@@ -1,6 +1,6 @@
 Bahasa Indonesia
-app_title=YouTube Downloader
-youtube_url=URL YouTube:
+app_title=Social Media Downloader
+youtube_url=URL Video:
 add=Tambah
 bulk_add=Tambah massal
 download_list=Video yang akan diunduh

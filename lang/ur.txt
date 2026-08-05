@@ -1,6 +1,6 @@
 اردو
-app_title=YouTube Downloader
-youtube_url=یوٹیوب URL:
+app_title=Social Media Downloader
+youtube_url=ویڈیو URL:
 add=شامل کریں
 bulk_add=ایک ساتھ شامل کریں
 download_list=ڈاؤن لوڈ کے لیے ویڈیوز

@@ -1,6 +1,6 @@
 العربية
-app_title=شاه يوتيوب داونلودر
-youtube_url=رابط يوتيوب:
+app_title=Social Media Downloader
+youtube_url=رابط الفيديو:
 add=إضافة
 bulk_add=إضافة مجمعة
 download_list=مقاطع فيديو للتنزيل

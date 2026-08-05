@@ -1,6 +1,6 @@
 Русский
-app_title=YouTube Downloader
-youtube_url=URL YouTube:
+app_title=Social Media Downloader
+youtube_url=URL видео:
 add=Добавить
 bulk_add=Массовое добавление
 download_list=Видео для загрузки

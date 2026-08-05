@@ -1,6 +1,6 @@
 বাংলা
-app_title=YouTube Downloader
-youtube_url=YouTube URL:
+app_title=Social Media Downloader
+youtube_url=ভিডিও URL:
 add=যোগ করুন
 bulk_add=একযোগে যোগ করুন
 download_list=ডাউনলোড করার ভিডিও

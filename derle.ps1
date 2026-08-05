@@ -121,7 +121,7 @@ if (Test-Path "youtube_icon.ico") {
 Write-Host "Youtube indirici başlığı güncelleniyor..." -ForegroundColor Yellow
 $pythonDosyasi = "youtube_downloader.py"
 $icerik = Get-Content -Path $pythonDosyasi -Encoding UTF8
-$icerik = $icerik -replace 'self\.root\.title\("YouTube İndirici"\)', 'self.root.title("YouTube Downloader")'
+$icerik = $icerik -replace 'self\.root\.title\("YouTube[^"]*"\)', 'self.root.title("Social Media Downloader")'
 Set-Content -Path $pythonDosyasi -Value $icerik -Encoding UTF8
 
 # Dil dosyalarını kontrol et
@@ -144,7 +144,7 @@ if (Test-Path "lang" -PathType Container) {
 
 # Uygulama derleme
 Write-Host "Uygulama derleniyor..." -ForegroundColor Cyan
-$derleKomutu = "pyinstaller --clean --noconfirm --onefile --windowed $iconParam $langDataParam youtube_downloader.py --name 'YouTube_Downloader'"
+$derleKomutu = "python -m PyInstaller --clean --noconfirm --onefile --windowed $iconParam $langDataParam youtube_downloader.py --name 'Social_Media_Downloader'"
 Write-Host "Çalıştırılan komut: $derleKomutu" -ForegroundColor DarkGray
 Invoke-Expression $derleKomutu
 
@@ -152,7 +152,7 @@ if ($LASTEXITCODE -ne 0) {
     Write-Host "Derleme sirasinda hata olustu!" -ForegroundColor Red
 } else {
     Write-Host "Derleme basariyla tamamlandi!" -ForegroundColor Green
-    Write-Host "Calistirilabilir dosya: dist\YouTube_Downloader.exe" -ForegroundColor Cyan
+    Write-Host "Calistirilabilir dosya: dist\Social_Media_Downloader.exe" -ForegroundColor Cyan
     
     # Derleme sonrası, exe'nin yanına ikon dosyasını da kopyala
     if (Test-Path "youtube_icon.ico") {

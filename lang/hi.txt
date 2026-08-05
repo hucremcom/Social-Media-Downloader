@@ -1,6 +1,6 @@
 हिंदी
-app_title=YouTube Downloader
-youtube_url=यूट्यूब URL:
+app_title=Social Media Downloader
+youtube_url=वीडियो URL:
 add=जोड़ें
 bulk_add=एक साथ जोड़ें
 download_list=डाउनलोड के लिए वीडियो

@@ -1,3 +1,4 @@
 # Ignore distribution and application data directories
 dist/
-appdata/ 
+appdata/
+update/

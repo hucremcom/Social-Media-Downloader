@@ -15,9 +15,7 @@ import shutil
 class YoutubeDownloader:
     def __init__(self, root):
         self.root = root
-        self.root.title("YouTube Downloader")
-        self.root.geometry("800x700")  # Yüksekliği artırdık
-        self.root.minsize(800, 700)    # Minimum yüksekliği de artırdık
+        self.root.title("Social Media Downloader")
         
         # İkonu ayarla - pencere başlığında görünecek ikon
         if os.path.exists("youtube_icon.ico"):
@@ -34,35 +32,62 @@ class YoutubeDownloader:
         # Console başlangıçta None olarak tanımla
         self.console = None
         
-        # Tema renklerini tanımla
+        # Tema renklerini tanımla (modern, tutarlı bir tasarım sistemi)
+        # accent: birincil marka rengi (kırmızı - YouTube'u çağrıştırır)
+        # success: indirmeyi başlat gibi olumlu eylemler
+        # danger: durdur / sil gibi yıkıcı eylemler
         self.dark_colors = {
-            "bg": "#2b2b2b",
-            "fg": "#ffffff",
-            "select_bg": "#404040",
+            "bg": "#1e1f26",
+            "card_bg": "#262835",
+            "header_bg": "#171821",
+            "fg": "#eef0f6",
+            "muted_fg": "#9a9db3",
+            "border": "#383a4a",
+            "select_bg": "#3a3d52",
             "select_fg": "#ffffff",
-            "button_bg": "#404040",
-            "button_fg": "#ffffff",
-            "hover_bg": "#505050",  # Hover için daha açık bir renk
+            "button_bg": "#323548",
+            "button_fg": "#eef0f6",
+            "hover_bg": "#3d4058",
             "hover_fg": "#ffffff",
-            "entry_bg": "#404040",
-            "entry_fg": "#ffffff",
-            "console_bg": "#1e1e1e",
-            "console_fg": "#ffffff"
+            "entry_bg": "#2c2e3d",
+            "entry_fg": "#eef0f6",
+            "console_bg": "#14151c",
+            "console_fg": "#c7f9cc",
+            "accent": "#ff3b52",
+            "accent_hover": "#ff5c70",
+            "accent_fg": "#ffffff",
+            "success": "#2fbf71",
+            "success_hover": "#3fd082",
+            "danger": "#e5484d",
+            "danger_hover": "#f16f73",
+            "danger_fg": "#ffffff"
         }
-        
+
         self.light_colors = {
-            "bg": "#f0f0f0",
-            "fg": "#000000",
-            "select_bg": "#0078d7",
-            "select_fg": "#ffffff",
-            "button_bg": "#e1e1e1",
-            "button_fg": "#000000",
-            "hover_bg": "#d1d1d1",  # Hover için daha koyu bir renk 
-            "hover_fg": "#000000",
+            "bg": "#f2f3f7",
+            "card_bg": "#ffffff",
+            "header_bg": "#ffffff",
+            "fg": "#20222b",
+            "muted_fg": "#666a7d",
+            "border": "#e1e3ec",
+            "select_bg": "#e3e6f7",
+            "select_fg": "#20222b",
+            "button_bg": "#eceef4",
+            "button_fg": "#20222b",
+            "hover_bg": "#dfe2ee",
+            "hover_fg": "#20222b",
             "entry_bg": "#ffffff",
-            "entry_fg": "#000000",
+            "entry_fg": "#20222b",
             "console_bg": "#ffffff",
-            "console_fg": "#000000"
+            "console_fg": "#1c1c1c",
+            "accent": "#ff3b52",
+            "accent_hover": "#e8283f",
+            "accent_fg": "#ffffff",
+            "success": "#1fa15c",
+            "success_hover": "#188a4d",
+            "danger": "#e5484d",
+            "danger_hover": "#cf3237",
+            "danger_fg": "#ffffff"
         }
         
         # Tema ve dil ayarları
@@ -125,6 +150,17 @@ class YoutubeDownloader:
         # Tema ve dil ayarlarını uygula
         self.setup_style()
         self.update_ui_texts()
+
+        # Pencereyi, içeriğin gerçekte ihtiyaç duyduğu doğal boyuta göre ortala/boyutlandır
+        self.root.update_idletasks()
+        req_w = max(self.root.winfo_reqwidth(), 860)
+        req_h = max(self.root.winfo_reqheight(), 760)
+        screen_w = self.root.winfo_screenwidth()
+        screen_h = self.root.winfo_screenheight()
+        req_h = min(req_h, screen_h - 80)
+        pos_x = max((screen_w - req_w) // 2, 0)
+        pos_y = max((screen_h - req_h) // 2, 0)
+        self.root.geometry(f"{req_w}x{req_h}+{pos_x}+{pos_y}")
         
         # Başlangıç kontrolü
         self.check_ytdlp()
@@ -196,80 +232,179 @@ class YoutubeDownloader:
             self.log(f"{self.get_translation('ytdlp_found')} {self.yt_dlp_path}")
     
     def setup_style(self):
-        """Tema ayarlarını yapılandırır."""
+        """Tema ayarlarını yapılandırır (modern, kart tabanlı görünüm)."""
         colors = self.dark_colors if self.current_theme == "dark" else self.light_colors
-        
+        self.colors = colors  # Diğer metotlardan kolay erişim için sakla
+
+        base_font = ("Segoe UI", 10)
+        bold_font = ("Segoe UI", 10, "bold")
+
         try:
             # Tema ayarı
             self.style.theme_use("clam")  # Daha iyi kontrol için
-            
-            # Widget stillerini yapılandır
+
+            # --- Genel çerçeve / etiketler ---
             self.style.configure("TFrame", background=colors["bg"])
-            self.style.configure("TLabel", background=colors["bg"], foreground=colors["fg"])
-            
-            # Butonlar için özel bir yapılandırma
-            self.style.configure("TButton", 
-                background=colors["button_bg"], 
+            self.style.configure("Card.TFrame", background=colors["card_bg"])
+            self.style.configure("Header.TFrame", background=colors["header_bg"])
+
+            self.style.configure("TLabel", background=colors["bg"], foreground=colors["fg"], font=base_font)
+            self.style.configure("Card.TLabel", background=colors["card_bg"], foreground=colors["fg"], font=base_font)
+            self.style.configure("Muted.TLabel", background=colors["bg"], foreground=colors["muted_fg"], font=base_font)
+            self.style.configure("CardMuted.TLabel", background=colors["card_bg"], foreground=colors["muted_fg"], font=base_font)
+            self.style.configure("Title.TLabel", background=colors["header_bg"], foreground=colors["fg"], font=("Segoe UI", 15, "bold"))
+            self.style.configure("Subtitle.TLabel", background=colors["header_bg"], foreground=colors["muted_fg"], font=("Segoe UI", 9))
+            self.style.configure("Status.TLabel", background=colors["bg"], foreground=colors["muted_fg"], font=("Segoe UI", 9))
+
+            # --- Standart (ikincil) butonlar ---
+            self.style.configure("TButton",
+                background=colors["button_bg"],
                 foreground=colors["button_fg"],
-                focuscolor=colors["select_bg"])
-            
-            # Aktif buton durumu için
-            self.style.map("TButton", 
-                background=[('active', colors["hover_bg"]), ('pressed', colors["select_bg"])],
-                foreground=[('active', colors["hover_fg"]), ('pressed', colors["select_fg"])])
-            
-            # RadioButton ve CheckButton için hover durumu
-            self.style.configure("TRadiobutton", 
-                background=colors["bg"], 
-                foreground=colors["fg"])
-            self.style.map("TRadiobutton",
-                background=[('active', colors["hover_bg"])],
-                foreground=[('active', colors["hover_fg"])])
-                
-            self.style.configure("TCheckbutton", 
-                background=colors["bg"], 
-                foreground=colors["fg"])
-            self.style.map("TCheckbutton",
-                background=[('active', colors["hover_bg"])],
-                foreground=[('active', colors["hover_fg"])])
-            
-            self.style.configure("TEntry", fieldbackground=colors["entry_bg"], foreground=colors["entry_fg"])
-            self.style.configure("TProgressbar", background=colors["select_bg"])
-            self.style.configure("TLabelframe", background=colors["bg"], foreground=colors["fg"])
-            self.style.configure("TLabelframe.Label", background=colors["bg"], foreground=colors["fg"])
-            
-            # Listbox ve diğer widget'lar için tema ayarları
+                font=base_font,
+                borderwidth=0,
+                focuscolor=colors["bg"],
+                padding=(12, 7))
+            self.style.map("TButton",
+                background=[('active', colors["hover_bg"]), ('pressed', colors["hover_bg"]), ('disabled', colors["button_bg"])],
+                foreground=[('active', colors["hover_fg"]), ('disabled', colors["muted_fg"])])
+
+            # --- Birincil eylem butonu (İndirmeyi Başlat) ---
+            self.style.configure("Accent.TButton",
+                background=colors["success"],
+                foreground=colors["accent_fg"],
+                font=bold_font,
+                borderwidth=0,
+                focuscolor=colors["success"],
+                padding=(16, 9))
+            self.style.map("Accent.TButton",
+                background=[('active', colors["success_hover"]), ('pressed', colors["success_hover"]), ('disabled', colors["border"])],
+                foreground=[('disabled', colors["muted_fg"])])
+
+            # --- Tehlikeli / durdurucu eylem butonu ---
+            self.style.configure("Danger.TButton",
+                background=colors["danger"],
+                foreground=colors["danger_fg"],
+                font=bold_font,
+                borderwidth=0,
+                focuscolor=colors["danger"],
+                padding=(16, 9))
+            self.style.map("Danger.TButton",
+                background=[('active', colors["danger_hover"]), ('pressed', colors["danger_hover"]), ('disabled', colors["border"])],
+                foreground=[('disabled', colors["muted_fg"])])
+
+            # --- Ekle butonu (URL alanı) marka rengiyle vurgulanır ---
+            self.style.configure("Brand.TButton",
+                background=colors["accent"],
+                foreground=colors["accent_fg"],
+                font=bold_font,
+                borderwidth=0,
+                focuscolor=colors["accent"],
+                padding=(14, 7))
+            self.style.map("Brand.TButton",
+                background=[('active', colors["accent_hover"]), ('pressed', colors["accent_hover"])])
+
+            # --- İkon / ghost butonlar (tema değiştir gibi) ---
+            self.style.configure("Icon.TButton",
+                background=colors["header_bg"],
+                foreground=colors["fg"],
+                font=("Segoe UI", 11),
+                borderwidth=1,
+                relief="flat",
+                padding=(8, 4))
+            self.style.map("Icon.TButton",
+                background=[('active', colors["hover_bg"])])
+
+            # --- Radiobutton / Checkbutton ---
+            for style_name, bg in (("TRadiobutton", colors["card_bg"]), ("TCheckbutton", colors["card_bg"])):
+                self.style.configure(style_name, background=bg, foreground=colors["fg"], font=base_font)
+                self.style.map(style_name,
+                    background=[('active', bg)],
+                    foreground=[('active', colors["accent"])],
+                    indicatorcolor=[('selected', colors["accent"])])
+
+            # --- Giriş kutuları ---
+            self.style.configure("TEntry",
+                fieldbackground=colors["entry_bg"],
+                foreground=colors["entry_fg"],
+                bordercolor=colors["border"],
+                lightcolor=colors["border"],
+                darkcolor=colors["border"],
+                borderwidth=1,
+                padding=(8, 6))
+            self.style.map("TEntry",
+                bordercolor=[('focus', colors["accent"])])
+
+            # --- İlerleme çubuğu ---
+            self.style.configure("TProgressbar",
+                background=colors["accent"],
+                troughcolor=colors["border"],
+                bordercolor=colors["border"],
+                lightcolor=colors["accent"],
+                darkcolor=colors["accent"],
+                thickness=14)
+
+            # --- Kart görünümlü LabelFrame (bölüm başlıkları) ---
+            self.style.configure("Card.TLabelframe",
+                background=colors["card_bg"],
+                bordercolor=colors["border"],
+                borderwidth=1,
+                relief="solid")
+            self.style.configure("Card.TLabelframe.Label",
+                background=colors["card_bg"],
+                foreground=colors["accent"],
+                font=("Segoe UI", 10, "bold"))
+
+            # Eski/varsayılan LabelFrame stiliyle uyum (geri kalan referanslar için)
+            self.style.configure("TLabelframe", background=colors["card_bg"], foreground=colors["fg"], bordercolor=colors["border"])
+            self.style.configure("TLabelframe.Label", background=colors["card_bg"], foreground=colors["accent"], font=("Segoe UI", 10, "bold"))
+
+            self.style.configure("Vertical.TScrollbar", background=colors["button_bg"], troughcolor=colors["bg"], bordercolor=colors["bg"], arrowcolor=colors["fg"])
+
+            # Kök pencere ve menü renkleri
             self.root.configure(bg=colors["bg"])
-            
-            # Menü renkleri
-            if self.current_theme == "dark":
-                self.root.option_add("*Menu.Background", colors["bg"])
-                self.root.option_add("*Menu.Foreground", colors["fg"])
-                self.root.option_add("*Menu.activeBackground", colors["hover_bg"]) 
-                self.root.option_add("*Menu.activeForeground", colors["hover_fg"])
-            else:
-                self.root.option_add("*Menu.Background", colors["bg"])
-                self.root.option_add("*Menu.Foreground", colors["fg"])
-                self.root.option_add("*Menu.activeBackground", colors["hover_bg"])
-                self.root.option_add("*Menu.activeForeground", colors["hover_fg"])
-            
-            # Eğer konsol varsa
+
+            self.root.option_add("*Menu.Background", colors["card_bg"])
+            self.root.option_add("*Menu.Foreground", colors["fg"])
+            self.root.option_add("*Menu.activeBackground", colors["accent"])
+            self.root.option_add("*Menu.activeForeground", colors["accent_fg"])
+            self.root.option_add("*Menu.font", base_font)
+
+            # Konsol
             if hasattr(self, 'console') and self.console:
                 self.console.configure(
                     bg=colors["console_bg"],
                     fg=colors["console_fg"],
-                    insertbackground=colors["fg"]
+                    insertbackground=colors["fg"],
+                    font=("Consolas", 9),
+                    relief="flat",
+                    borderwidth=0
                 )
-            
-            # Eğer listbox varsa
+
+            # URL listesi
             if hasattr(self, 'url_listbox') and self.url_listbox:
                 self.url_listbox.configure(
                     bg=colors["entry_bg"],
                     fg=colors["entry_fg"],
-                    selectbackground=colors["select_bg"],
-                    selectforeground=colors["select_fg"]
+                    selectbackground=colors["accent"],
+                    selectforeground=colors["accent_fg"],
+                    font=base_font,
+                    relief="flat",
+                    borderwidth=0,
+                    highlightthickness=1,
+                    highlightbackground=colors["border"],
+                    highlightcolor=colors["accent"]
                 )
-                
+
+            # Başlık çubuğu / logo alanı
+            if hasattr(self, 'header_frame') and self.header_frame:
+                self.header_frame.configure(style="Header.TFrame")
+
+            # Durum noktası (küçük renkli gösterge)
+            if hasattr(self, 'status_dot') and self.status_dot:
+                self.status_dot.configure(bg=colors["bg"])
+                if hasattr(self, 'status_dot_oval'):
+                    self.status_dot.itemconfig(self.status_dot_oval, fill=colors["success"])
+
         except Exception as e:
             print(f"Tema ayarlama hatası: {str(e)}")
 
@@ -282,30 +417,19 @@ class YoutubeDownloader:
         
         self.settings["theme"] = self.current_theme
         self.save_settings()
-        
-        # Stili güncelle
+
+        # Stili güncelle (ttk stilleri anında tüm widget'lara yansır)
         self.setup_style()
-        # Frame'lerin ve root penceresinin arka planını güncelle
-        # Bu, tüm widget'ların yeniden çizilmesini tetikler.
-        self.update_widget_backgrounds(self.root, self.style.lookup(".", "background"))
+
+        # Tema simgesini güncelle
+        if hasattr(self, 'theme_button') and self.theme_button:
+            icon = "☀" if self.current_theme == "dark" else "🌙"
+            self.theme_button.config(text=icon)
 
     def update_widget_backgrounds(self, widget, bg_color):
-        """Verilen widget ve tüm alt widget'larının arka planını günceller."""
-        try:
-            widget_class = widget.winfo_class()
-            
-            # Frame, LabelFrame gibi container widget'lar
-            if widget_class in ['Frame', 'TFrame', 'Labelframe', 'TLabelframe']:
-                for child in widget.winfo_children():
-                    self.update_widget_backgrounds(child, bg_color)
-            
-            # Root windowun alt widget'ları için
-            elif widget == self.root:
-                for child in widget.winfo_children():
-                    self.update_widget_backgrounds(child, bg_color)
-            
-        except Exception as e:
-            print(f"Widget güncelleme hatası: {str(e)}")
+        """Geriye dönük uyumluluk için bırakıldı; ttk stil sistemi artık
+        renklendirmeyi merkezi olarak setup_style() üzerinden yönetiyor."""
+        return
 
     def add_url(self):
         url = self.url_var.get().strip()
@@ -362,6 +486,7 @@ class YoutubeDownloader:
                 self.yt_dlp_path,
                 "--flat-playlist",
                 "--get-id",
+                "--extractor-args", "youtube:player_client=android",
                 playlist_url
             ]
             
@@ -566,6 +691,8 @@ class YoutubeDownloader:
             
             cmd = [self.yt_dlp_path]
             cmd.extend(self.get_quality_params(format_to_download))
+            # YouTube artık tv/ios client'larını engelliyor; android client çalışmaya devam ediyor.
+            cmd.extend(["--extractor-args", "youtube:player_client=android"])
             
             # Çıktı dosya adını formatla belirginleştir (isteğe bağlı ama karışıklığı önler)
             # Örneğin: VideoAdi_mp3.mp3, VideoAdi_mp4.mp4
@@ -641,113 +768,89 @@ class YoutubeDownloader:
 
     def update_ui_texts(self):
         """Arayüz metinlerini seçili dile göre günceller."""
-        
+
         # Ana pencere başlığı
         self.root.title(self.get_translation("app_title"))
-        
+
         try:
-            # Dil menüsünü güncelle
-            menubar = self.root.winfo_children()[0]
-            
-            # Dil menüsünün index'ini bul
-            for i in range(menu_bar.index("end") + 1):
+            # Dil menüsünün başlığını güncelle (menü çubuğundaki ilk cascade)
+            menubar = self.root.nametowidget(self.root.cget("menu"))
+            for i in range(menubar.index("end") + 1):
                 try:
-                    label = menu_bar.entrycget(i, "label")
-                    # İki dilde de olabileceğinden, kontrol etmeden güncelle
-                    menu_bar.entryconfig(i, label=self.get_translation("language"))
+                    menubar.entrycget(i, "label")
+                    menubar.entryconfig(i, label=self.get_translation("language"))
                     break
-                except:
+                except tk.TclError:
                     continue
-            
         except Exception as e:
             print(f"Menü güncelleme hatası: {e}")
-        
-        # Etiketler ve butonları güncelle
-        if hasattr(self, 'url_label'):
-            self.url_label.config(text=self.get_translation("youtube_url"))
-        
+
+        # Başlık alanı
+        if hasattr(self, 'app_title_label'):
+            self.app_title_label.config(text=self.get_translation("app_title"))
+
+        if hasattr(self, 'app_subtitle_label'):
+            self.app_subtitle_label.config(text=self.get_translation("app_subtitle", "Video & ses indirme aracı"))
+
+        # Kartlar (LabelFrame başlıkları) - ikonlarla birlikte doğrudan güncelle
+        if hasattr(self, 'url_card'):
+            self.url_card.config(text=f"  🔗  {self.get_translation('youtube_url')}")
+
+        if hasattr(self, 'list_card'):
+            self.list_card.config(text=f"  📋  {self.get_translation('download_list')}")
+
+        if hasattr(self, 'settings_card'):
+            self.settings_card.config(text=f"  ⚙  {self.get_translation('download_settings')}")
+
+        if hasattr(self, 'console_card'):
+            self.console_card.config(text=f"  🖥  {self.get_translation('console_output')}")
+
+        # Butonlar ve etiketler
         if hasattr(self, 'add_button'):
-            self.add_button.config(text=self.get_translation("add"))
-        
+            self.add_button.config(text=f"＋ {self.get_translation('add')}")
+
         if hasattr(self, 'bulk_add_button'):
             self.bulk_add_button.config(text=self.get_translation("bulk_add"))
-        
+
         if hasattr(self, 'delete_button'):
-            self.delete_button.config(text=self.get_translation("delete_selected"))
-        
+            self.delete_button.config(text=f"🗑  {self.get_translation('delete_selected')}")
+
         if hasattr(self, 'clear_button'):
-            self.clear_button.config(text=self.get_translation("clear_list"))
-        
+            self.clear_button.config(text=f"🧹  {self.get_translation('clear_list')}")
+
         if hasattr(self, 'playlist_button'):
-            self.playlist_button.config(text=self.get_translation("add_playlist"))
-        
+            self.playlist_button.config(text=f"🎞  {self.get_translation('add_playlist')}")
+
         if hasattr(self, 'format_label'):
             self.format_label.config(text=self.get_translation("format"))
-        
+
         if hasattr(self, 'quality_label'):
             self.quality_label.config(text=self.get_translation("quality"))
-        
+
         if hasattr(self, 'high_radio'):
             self.high_radio.config(text=self.get_translation("high"))
-        
+
         if hasattr(self, 'medium_radio'):
             self.medium_radio.config(text=self.get_translation("medium"))
-        
+
         if hasattr(self, 'low_radio'):
             self.low_radio.config(text=self.get_translation("low"))
-        
+
         if hasattr(self, 'download_folder_label'):
             self.download_folder_label.config(text=self.get_translation("download_folder"))
-        
+
         if hasattr(self, 'browse_button'):
-            self.browse_button.config(text=self.get_translation("browse"))
-        
+            self.browse_button.config(text=f"📁  {self.get_translation('browse')}")
+
         if hasattr(self, 'download_button'):
-            self.download_button.config(text=self.get_translation("start_download"))
-        
+            self.download_button.config(text=f"⬇  {self.get_translation('start_download')}")
+
         if hasattr(self, 'stop_button'):
-            self.stop_button.config(text=self.get_translation("stop_download"))
-        
-        if hasattr(self, 'theme_button'):
-            self.theme_button.config(text=self.get_translation("change_theme"))
-        
+            self.stop_button.config(text=f"■  {self.get_translation('stop_download')}")
+
         if hasattr(self, 'both_formats_checkbox'):
             self.both_formats_checkbox.config(text=self.get_translation("both_formats"))
-        
-        # LabelFrame başlıklarını güncelle - doğrudan referansla
-        for widget in self.root.winfo_children():
-            if isinstance(widget, ttk.LabelFrame) or isinstance(widget, tk.LabelFrame):
-                # LabelFrame'in etiket metnini alıp kontrol et
-                frame_text = widget.cget("text")
-                
-                # İndirilecek Videolar
-                if "İndirilecek Videolar" in frame_text or "Videos to Download" in frame_text:
-                    widget.configure(text=self.get_translation("download_list"))
-                # İndirme Ayarları    
-                elif "İndirme Ayarları" in frame_text or "Download Settings" in frame_text:
-                    widget.configure(text=self.get_translation("download_settings"))
-                # Konsol Çıktısı
-                elif "Konsol Çıktısı" in frame_text or "Console Output" in frame_text:
-                    widget.configure(text=self.get_translation("console_output"))
-                    
-        # Tüm alt widget'ları dolaşarak create_ui sırasında oluşturulan LabelFrame'leri bul
-        for widget in self.root.winfo_children():
-            if widget.winfo_children():
-                for child in widget.winfo_children():
-                    if isinstance(child, ttk.LabelFrame) or isinstance(child, tk.LabelFrame):
-                        # LabelFrame'in etiket metnini alıp kontrol et
-                        frame_text = child.cget("text")
-                        
-                        # İndirilecek Videolar
-                        if "İndirilecek Videolar" in frame_text or "Videos to Download" in frame_text:
-                            child.configure(text=self.get_translation("download_list"))
-                        # İndirme Ayarları
-                        elif "İndirme Ayarları" in frame_text or "Download Settings" in frame_text:
-                            child.configure(text=self.get_translation("download_settings"))
-                        # Konsol Çıktısı
-                        elif "Konsol Çıktısı" in frame_text or "Console Output" in frame_text:
-                            child.configure(text=self.get_translation("console_output"))
-        
+
         # Durum bilgisini güncelle
         if hasattr(self, 'status_var'):
             self.status_var.set(self.get_translation("ready"))
@@ -950,8 +1053,9 @@ class YoutubeDownloader:
         
         # Türkçe çeviriler
         tr_translations = {
-            "app_title": "YouTube Downloader",
-            "youtube_url": "YouTube URL:",
+            "app_title": "Social Media Downloader",
+            "app_subtitle": "Hızlı ve sade video / ses indirme aracı",
+            "youtube_url": "Video URL:",
             "add": "Ekle",
             "bulk_add": "Toplu Ekle",
             "download_list": "İndirilecek Videolar",
@@ -985,8 +1089,9 @@ class YoutubeDownloader:
         
         # İngilizce çeviriler
         en_translations = {
-            "app_title": "YouTube Downloader",
-            "youtube_url": "YouTube URL:",
+            "app_title": "Social Media Downloader",
+            "app_subtitle": "Fast & simple video / audio downloader",
+            "youtube_url": "Video URL:",
             "add": "Add",
             "bulk_add": "Bulk Add",
             "download_list": "Videos to Download",
@@ -1020,8 +1125,8 @@ class YoutubeDownloader:
 
         # Arapça çeviriler
         ar_translations = {
-            "app_title": "شاه يوتيوب داونلودر",
-            "youtube_url": "رابط يوتيوب:",
+            "app_title": "Social Media Downloader",
+            "youtube_url": "رابط الفيديو:",
             "add": "إضافة",
             "bulk_add": "إضافة مجمعة",
             "download_list": "مقاطع فيديو للتنزيل",
@@ -1055,8 +1160,8 @@ class YoutubeDownloader:
 
         # İspanyolca çeviriler
         es_translations = {
-            "app_title": "YouTube Downloader",
-            "youtube_url": "URL de YouTube:",
+            "app_title": "Social Media Downloader",
+            "youtube_url": "URL del video:",
             "add": "Añadir",
             "bulk_add": "Añadir en masa",
             "download_list": "Vídeos para descargar",
@@ -1090,8 +1195,8 @@ class YoutubeDownloader:
 
         # Fransızca çeviriler
         fr_translations = {
-            "app_title": "YouTube Downloader",
-            "youtube_url": "URL YouTube :",
+            "app_title": "Social Media Downloader",
+            "youtube_url": "URL de la vidéo :",
             "add": "Ajouter",
             "bulk_add": "Ajout en masse",
             "download_list": "Vidéos à télécharger",
@@ -1164,153 +1269,200 @@ class YoutubeDownloader:
         return translations.get(key, default)
 
     def create_ui(self):
-        """Kullanıcı arayüzünü oluşturur."""
-        # Menü Çubuğu
+        """Kullanıcı arayüzünü oluşturur (kart tabanlı, modern düzen)."""
+        # Widget oluşturulurken renklere erişilebilmesi için tema renklerini önceden hesapla
+        self.colors = self.dark_colors if self.current_theme == "dark" else self.light_colors
+
+        # Pencere boyutunu burada sabitlemiyoruz; içerik oluşturulduktan sonra
+        # doğal (gerekli) boyuta göre ayarlanacak, böylece hiçbir kart kırpılmaz.
+        self.root.minsize(860, 760)
+
+        # Menü Çubuğu (Dil seçimi)
         menubar = tk.Menu(self.root)
         self.root.config(menu=menubar)
 
-        # Dil Menüsü
         self.language_menu = tk.Menu(menubar, tearoff=0)
-        
-        # Dil menüsünün başlığını ayarla
         menubar.add_cascade(label=self.get_translation("language"), menu=self.language_menu)
-        
-        # Dil seçeneklerini ekle - mevcut tüm dil dosyalarından
+
         for lang_code, lang_name in self.language_names.items():
             self.language_menu.add_command(
                 label=lang_name,
                 command=lambda code=lang_code: self.change_language(code)
             )
 
-        # Ana çerçeve
-        main_frame = ttk.Frame(self.root, padding="10")
+        # ============ ÜST BAŞLIK ÇUBUĞU ============
+        self.header_frame = ttk.Frame(self.root, style="Header.TFrame", padding=(20, 14))
+        self.header_frame.pack(fill=tk.X, side=tk.TOP)
+
+        title_box = ttk.Frame(self.header_frame, style="Header.TFrame")
+        title_box.pack(side=tk.LEFT)
+
+        ttk.Label(title_box, text="▶", style="Title.TLabel", foreground=self.colors["accent"]).pack(side=tk.LEFT, padx=(0, 8))
+        title_text_box = ttk.Frame(title_box, style="Header.TFrame")
+        title_text_box.pack(side=tk.LEFT)
+        self.app_title_label = ttk.Label(title_text_box, text=self.get_translation("app_title"), style="Title.TLabel")
+        self.app_title_label.pack(anchor=tk.W)
+        self.app_subtitle_label = ttk.Label(title_text_box, text=self.get_translation("app_subtitle", "Video & ses indirme aracı"), style="Subtitle.TLabel")
+        self.app_subtitle_label.pack(anchor=tk.W)
+
+        self.theme_button = ttk.Button(
+            self.header_frame,
+            text="🌙" if self.current_theme == "light" else "☀",
+            style="Icon.TButton",
+            width=3,
+            command=self.toggle_theme
+        )
+        self.theme_button.pack(side=tk.RIGHT)
+
+        # ============ ANA İÇERİK (kaydırılabilir olmayan, dolgulu) ============
+        main_frame = ttk.Frame(self.root, padding=16)
         main_frame.pack(fill=tk.BOTH, expand=True)
-        
-        # URL giriş alanı
-        url_frame = ttk.Frame(main_frame)
-        url_frame.pack(fill=tk.X, pady=5)
-        
-        self.url_label = ttk.Label(url_frame, text=self.get_translation("youtube_url"))
-        self.url_label.pack(side=tk.LEFT, padx=5)
-        
-        self.url_entry = ttk.Entry(url_frame, textvariable=self.url_var, width=50)
-        self.url_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
+
+        # ---------- URL giriş kartı ----------
+        url_card = ttk.LabelFrame(main_frame, text=f"  🔗  {self.get_translation('youtube_url')}", style="Card.TLabelframe", padding=14)
+        url_card.pack(fill=tk.X, pady=(0, 12))
+
+        url_frame = ttk.Frame(url_card, style="Card.TFrame")
+        url_frame.pack(fill=tk.X)
+
+        self.url_entry = ttk.Entry(url_frame, textvariable=self.url_var, font=("Segoe UI", 10))
+        self.url_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 8), ipady=3)
         self.url_entry.bind("<Return>", lambda e: self.add_url())
-        
-        self.add_button = ttk.Button(url_frame, text=self.get_translation("add"), command=self.add_url)
-        self.add_button.pack(side=tk.RIGHT, padx=5)
-        
+
         self.bulk_add_button = ttk.Button(url_frame, text=self.get_translation("bulk_add"), command=self.bulk_add_urls)
-        self.bulk_add_button.pack(side=tk.RIGHT, padx=5)
-        
-        # URL listesi
-        list_frame = ttk.LabelFrame(main_frame, text=self.get_translation("download_list"), padding="5")
-        list_frame.pack(fill=tk.BOTH, expand=True, pady=5)
-        
-        self.url_listbox = tk.Listbox(list_frame, height=10)
+        self.bulk_add_button.pack(side=tk.LEFT, padx=(0, 8))
+
+        self.add_button = ttk.Button(url_frame, text=f"＋ {self.get_translation('add')}", style="Brand.TButton", command=self.add_url)
+        self.add_button.pack(side=tk.LEFT)
+
+        self.url_card = url_card
+
+        # ---------- İndirme listesi kartı ----------
+        list_card = ttk.LabelFrame(main_frame, text=f"  📋  {self.get_translation('download_list')}", style="Card.TLabelframe", padding=14)
+        list_card.pack(fill=tk.BOTH, expand=True, pady=(0, 12))
+        self.list_card = list_card
+
+        list_body = ttk.Frame(list_card, style="Card.TFrame")
+        list_body.pack(fill=tk.BOTH, expand=True)
+
+        self.url_listbox = tk.Listbox(list_body, height=9, activestyle="none")
         self.url_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        
-        scrollbar = ttk.Scrollbar(list_frame, orient=tk.VERTICAL, command=self.url_listbox.yview)
+
+        scrollbar = ttk.Scrollbar(list_body, orient=tk.VERTICAL, command=self.url_listbox.yview)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.url_listbox.config(yscrollcommand=scrollbar.set)
-        
-        # Liste kontrol butonları
-        list_control_frame = ttk.Frame(main_frame)
-        list_control_frame.pack(fill=tk.X, pady=5)
-        
-        self.delete_button = ttk.Button(list_control_frame, text=self.get_translation("delete_selected"), command=self.delete_selected)
-        self.delete_button.pack(side=tk.LEFT, padx=5)
-        
-        self.clear_button = ttk.Button(list_control_frame, text=self.get_translation("clear_list"), command=self.clear_list)
-        self.clear_button.pack(side=tk.LEFT, padx=5)
-        
-        self.playlist_button = ttk.Button(list_control_frame, text=self.get_translation("add_playlist"), command=self.add_playlist)
-        self.playlist_button.pack(side=tk.LEFT, padx=5)
-        
-        # İndirme ayarları
-        settings_frame = ttk.LabelFrame(main_frame, text=self.get_translation("download_settings"), padding="5")
-        settings_frame.pack(fill=tk.X, pady=5)
-        
+
+        list_control_frame = ttk.Frame(list_card, style="Card.TFrame")
+        list_control_frame.pack(fill=tk.X, pady=(10, 0))
+
+        self.delete_button = ttk.Button(list_control_frame, text=f"🗑  {self.get_translation('delete_selected')}", command=self.delete_selected)
+        self.delete_button.pack(side=tk.LEFT, padx=(0, 8))
+
+        self.clear_button = ttk.Button(list_control_frame, text=f"🧹  {self.get_translation('clear_list')}", command=self.clear_list)
+        self.clear_button.pack(side=tk.LEFT, padx=(0, 8))
+
+        self.playlist_button = ttk.Button(list_control_frame, text=f"🎞  {self.get_translation('add_playlist')}", command=self.add_playlist)
+        self.playlist_button.pack(side=tk.LEFT)
+
+        # ---------- İndirme ayarları kartı ----------
+        settings_frame = ttk.LabelFrame(main_frame, text=f"  ⚙  {self.get_translation('download_settings')}", style="Card.TLabelframe", padding=14)
+        settings_frame.pack(fill=tk.X, pady=(0, 12))
+        self.settings_card = settings_frame
+
         # Format seçimi
-        format_selection_frame = ttk.Frame(settings_frame)
-        format_selection_frame.pack(fill=tk.X, pady=5)
+        format_selection_frame = ttk.Frame(settings_frame, style="Card.TFrame")
+        format_selection_frame.pack(fill=tk.X, pady=(0, 10))
 
-        self.format_label = ttk.Label(format_selection_frame, text=self.get_translation("format"))
-        self.format_label.pack(side=tk.LEFT, padx=5)
-        
+        self.format_label = ttk.Label(format_selection_frame, text=self.get_translation("format"), style="Card.TLabel", font=("Segoe UI", 10, "bold"))
+        self.format_label.pack(side=tk.LEFT, padx=(0, 12))
+
         self.mp4_radio = ttk.Radiobutton(format_selection_frame, text="MP4", variable=self.format_var, value="mp4", command=self.on_format_change)
-        self.mp4_radio.pack(side=tk.LEFT, padx=5)
-        
-        self.mp3_radio = ttk.Radiobutton(format_selection_frame, text="MP3", variable=self.format_var, value="mp3", command=self.on_format_change)
-        self.mp3_radio.pack(side=tk.LEFT, padx=5)
+        self.mp4_radio.pack(side=tk.LEFT, padx=(0, 12))
 
-        # "Hem MP3 hem MP4" onay kutusu
+        self.mp3_radio = ttk.Radiobutton(format_selection_frame, text="MP3", variable=self.format_var, value="mp3", command=self.on_format_change)
+        self.mp3_radio.pack(side=tk.LEFT, padx=(0, 12))
+
         self.both_formats_checkbox = ttk.Checkbutton(
-            format_selection_frame, 
-            text=self.get_translation("both_formats"), 
+            format_selection_frame,
+            text=self.get_translation("both_formats"),
             variable=self.download_both_formats,
             command=self.on_both_formats_toggle
         )
-        self.both_formats_checkbox.pack(side=tk.LEFT, padx=10)
-        
-        # Kalite seçimi
-        quality_frame = ttk.Frame(settings_frame)
-        quality_frame.pack(fill=tk.X, pady=5)
-        
-        self.quality_label = ttk.Label(quality_frame, text=self.get_translation("quality"))
-        self.quality_label.pack(side=tk.LEFT, padx=5)
-        
-        self.high_radio = ttk.Radiobutton(quality_frame, text=self.get_translation("high"), variable=self.quality_var, value="high")
-        self.high_radio.pack(side=tk.LEFT, padx=5)
-        
-        self.medium_radio = ttk.Radiobutton(quality_frame, text=self.get_translation("medium"), variable=self.quality_var, value="medium")
-        self.medium_radio.pack(side=tk.LEFT, padx=5)
-        
-        self.low_radio = ttk.Radiobutton(quality_frame, text=self.get_translation("low"), variable=self.quality_var, value="low")
-        self.low_radio.pack(side=tk.LEFT, padx=5)
-        
-        # İndirme klasörü
-        dir_frame = ttk.Frame(settings_frame)
-        dir_frame.pack(fill=tk.X, pady=5)
-        
-        self.download_folder_label = ttk.Label(dir_frame, text=self.get_translation("download_folder"))
-        self.download_folder_label.pack(side=tk.LEFT, padx=5)
-        
-        dir_entry = ttk.Entry(dir_frame, textvariable=self.dir_var, width=50)
-        dir_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
-        
-        self.browse_button = ttk.Button(dir_frame, text=self.get_translation("browse"), command=self.browse_directory)
-        self.browse_button.pack(side=tk.RIGHT, padx=5)
-        
-        # İndirme butonu ve Tema Değiştir Butonu
-        controls_frame = ttk.Frame(main_frame)
-        controls_frame.pack(fill=tk.X, pady=10)
-        
-        self.download_button = ttk.Button(controls_frame, text=self.get_translation("start_download"), command=self.start_download)
-        self.download_button.pack(side=tk.LEFT, padx=5)
-        
-        self.stop_button = ttk.Button(controls_frame, text=self.get_translation("stop_download"), command=self.stop_download, state=tk.DISABLED)
-        self.stop_button.pack(side=tk.LEFT, padx=5)
+        self.both_formats_checkbox.pack(side=tk.LEFT, padx=(12, 0))
 
-        self.theme_button = ttk.Button(controls_frame, text=self.get_translation("change_theme"), command=self.toggle_theme)
-        self.theme_button.pack(side=tk.RIGHT, padx=5)
-        
-        # İlerleme çubuğu
+        # Ayırıcı
+        ttk.Separator(settings_frame, orient=tk.HORIZONTAL).pack(fill=tk.X, pady=6)
+
+        # Kalite seçimi
+        quality_frame = ttk.Frame(settings_frame, style="Card.TFrame")
+        quality_frame.pack(fill=tk.X, pady=(4, 10))
+
+        self.quality_label = ttk.Label(quality_frame, text=self.get_translation("quality"), style="Card.TLabel", font=("Segoe UI", 10, "bold"))
+        self.quality_label.pack(side=tk.LEFT, padx=(0, 12))
+
+        self.high_radio = ttk.Radiobutton(quality_frame, text=self.get_translation("high"), variable=self.quality_var, value="high")
+        self.high_radio.pack(side=tk.LEFT, padx=(0, 12))
+
+        self.medium_radio = ttk.Radiobutton(quality_frame, text=self.get_translation("medium"), variable=self.quality_var, value="medium")
+        self.medium_radio.pack(side=tk.LEFT, padx=(0, 12))
+
+        self.low_radio = ttk.Radiobutton(quality_frame, text=self.get_translation("low"), variable=self.quality_var, value="low")
+        self.low_radio.pack(side=tk.LEFT)
+
+        ttk.Separator(settings_frame, orient=tk.HORIZONTAL).pack(fill=tk.X, pady=6)
+
+        # İndirme klasörü
+        dir_frame = ttk.Frame(settings_frame, style="Card.TFrame")
+        dir_frame.pack(fill=tk.X, pady=(4, 0))
+
+        self.download_folder_label = ttk.Label(dir_frame, text=self.get_translation("download_folder"), style="Card.TLabel", font=("Segoe UI", 10, "bold"))
+        self.download_folder_label.pack(side=tk.LEFT, padx=(0, 12))
+
+        dir_entry = ttk.Entry(dir_frame, textvariable=self.dir_var)
+        dir_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 8), ipady=3)
+
+        self.browse_button = ttk.Button(dir_frame, text=f"📁  {self.get_translation('browse')}", command=self.browse_directory)
+        self.browse_button.pack(side=tk.LEFT)
+
+        # ---------- Eylem butonları ----------
+        controls_frame = ttk.Frame(main_frame)
+        controls_frame.pack(fill=tk.X, pady=(0, 12))
+
+        self.download_button = ttk.Button(
+            controls_frame, text=f"⬇  {self.get_translation('start_download')}",
+            style="Accent.TButton", command=self.start_download
+        )
+        self.download_button.pack(side=tk.LEFT, padx=(0, 10), ipady=2)
+
+        self.stop_button = ttk.Button(
+            controls_frame, text=f"■  {self.get_translation('stop_download')}",
+            style="Danger.TButton", command=self.stop_download, state=tk.DISABLED
+        )
+        self.stop_button.pack(side=tk.LEFT, ipady=2)
+
+        # ---------- İlerleme ve durum ----------
         progress_frame = ttk.Frame(main_frame)
-        progress_frame.pack(fill=tk.X, pady=5)
-        
+        progress_frame.pack(fill=tk.X, pady=(0, 12))
+
         self.progress_bar = ttk.Progressbar(progress_frame, variable=self.progress_var, maximum=100)
-        self.progress_bar.pack(fill=tk.X, padx=5)
-        
-        # Durum bilgisi
-        status_label = ttk.Label(progress_frame, textvariable=self.status_var)
-        status_label.pack(anchor=tk.W, padx=5, pady=2)
-        
-        # Çıktı konsolu
-        console_frame = ttk.LabelFrame(main_frame, text=self.get_translation("console_output"), padding="5")
-        console_frame.pack(fill=tk.BOTH, expand=True, pady=5)
-        
-        self.console = scrolledtext.ScrolledText(console_frame, wrap=tk.WORD, height=12)
+        self.progress_bar.pack(fill=tk.X)
+
+        status_row = ttk.Frame(progress_frame)
+        status_row.pack(fill=tk.X, pady=(6, 0))
+
+        self.status_dot = tk.Canvas(status_row, width=10, height=10, highlightthickness=0, bg=self.colors["bg"])
+        self.status_dot.pack(side=tk.LEFT, padx=(2, 6))
+        self.status_dot_oval = self.status_dot.create_oval(1, 1, 9, 9, fill=self.colors["success"], outline="")
+
+        status_label = ttk.Label(status_row, textvariable=self.status_var, style="Status.TLabel")
+        status_label.pack(side=tk.LEFT)
+
+        # ---------- Konsol çıktısı kartı ----------
+        console_frame = ttk.LabelFrame(main_frame, text=f"  🖥  {self.get_translation('console_output')}", style="Card.TLabelframe", padding=10)
+        console_frame.pack(fill=tk.BOTH, expand=True)
+        self.console_card = console_frame
+
+        self.console = scrolledtext.ScrolledText(console_frame, wrap=tk.WORD, height=10, borderwidth=0)
         self.console.pack(fill=tk.BOTH, expand=True)
         self.console.config(state=tk.DISABLED)
 
